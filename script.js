@@ -75,7 +75,7 @@ function createTaskElement(task, index) {
     taskText.textContent = task.text;
     taskText.classList.add('task-text');
     taskText.classList.toggle('completed', task.completed);
-    taskText.addEventListener('dblclick', () => editTask(index, taskText));
+    taskText.addEventListener('dblclick', () => editTask(index));
     
     const taskActions = document.createElement('div');
     taskActions.classList.add('task-actions');
@@ -83,7 +83,7 @@ function createTaskElement(task, index) {
     const doneBtn = document.createElement('button');
     doneBtn.textContent = task.completed ? 'Undo' : 'Done';
     doneBtn.classList.add('done-btn');
-    doneBtn.addEventListener('click', () => toggleTaskCompletion(index, doneBtn));
+    doneBtn.addEventListener('click', () => toggleTaskCompletion(index));
     
     const deleteBtn = document.createElement('button');
     deleteBtn.innerHTML = '&#10006;';
@@ -112,9 +112,9 @@ function createTaskElement(task, index) {
     return li;
 }
 
-function editTask(index, taskTextElement) {
+function editTask(index) {
     const newText = prompt("Edit your task:", tasks[index].text);
-    if (newText && newText.trim() !== "" && !tasks.some(task => task.text.toLowerCase() === newText.toLowerCase())) {
+    if (newText && newText.trim() !== "" && !tasks.some((task, i) => i !== index && task.text.toLowerCase() === newText.toLowerCase())) {
         tasks[index].text = newText.trim();
         updateLocalStorage();
         renderTasks();
@@ -131,9 +131,8 @@ function swapTasks(fromIndex, toIndex) {
     renderTasks();
 }
 
-function toggleTaskCompletion(index, doneBtn) {
+function toggleTaskCompletion(index) {
     tasks[index].completed = !tasks[index].completed;
-    doneBtn.textContent = tasks[index].completed ? 'Undo' : 'Done';
     updateLocalStorage();
     renderTasks();
 }
@@ -161,4 +160,21 @@ function deleteSelectedTasks() {
 
 function updateLocalStorage() {
     localStorage.setItem('tasks', JSON.stringify(tasks));
+}
+
+function toggleTheme() {
+    document.body.classList.toggle('dark-mode');
+    localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+}
+
+function applyDarkMode() {
+    if (localStorage.getItem('darkMode') === 'true') {
+        document.body.classList.add('dark-mode');
+    }
+}
+
+function sortTasks(ascending) {
+    tasks.sort((a, b) => ascending ? a.text.localeCompare(b.text) : b.text.localeCompare(a.text));
+    updateLocalStorage();
+    renderTasks();
 }
